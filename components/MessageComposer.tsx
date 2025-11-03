@@ -20,7 +20,7 @@ export function MessageComposer({ contactId, contactPhone, contactEmail, onSent 
   const queryClient = useQueryClient();
 
   const sendMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: { to: string; body: string; channel: Channel }) => {
       const response = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ export function MessageComposer({ contactId, contactPhone, contactEmail, onSent 
   });
 
   const scheduleMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: { contactId: string; body: string; channel: string; scheduledAt: string }) => {
       const response = await fetch("/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

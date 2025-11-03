@@ -17,7 +17,7 @@ export const pusherServer = new Pusher({
   useTLS: true,
 });
 
-export async function push(channel: string, event: string, data: any) {
+export async function push(channel: string, event: string, data: unknown) {
   await pusherServer.trigger(channel, event, data);
 }
 

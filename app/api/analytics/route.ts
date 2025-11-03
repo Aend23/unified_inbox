@@ -113,14 +113,14 @@ export async function GET() {
         inboundPercentage: totalMessages > 0 ? Math.round((inboundCount / totalMessages) * 100) : 0,
         outboundPercentage: totalMessages > 0 ? Math.round((outboundCount / totalMessages) * 100) : 0,
       },
-      dailyStats: Object.entries(dailyStats).map(([date, stats]) => ({
+      dailyStats: Object.entries(dailyStats).map(([date, stats]: [string, { inbound: number; outbound: number; total: number }]) => ({
         date,
         ...stats,
       })),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching analytics:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to fetch analytics" }, { status: 500 });
   }
 }
 

@@ -22,10 +22,10 @@ export async function GET() {
     });
 
     return NextResponse.json(messages);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching messages:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch messages" },
+      { error: error instanceof Error ? error.message : "Failed to fetch messages" },
       { status: 500 }
     );
   }

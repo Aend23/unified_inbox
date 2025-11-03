@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { contactCreateSchema } from "@/lib/validation";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function GET(req: NextRequest) {
     const phone = searchParams.get("phone");
     const email = searchParams.get("email");
 
-    const where: any = {};
+    const where: Prisma.ContactWhereInput = {};
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
@@ -46,9 +47,9 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(contacts);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching contacts:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to fetch contacts" }, { status: 500 });
   }
 }
 
@@ -66,12 +67,12 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(contact, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating contact:", error);
-    if (error.name === "ZodError") {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+    if (typeof error === "object" && error && (error as { name?: string }).name === "ZodError") {
+      return NextResponse.json({ error: "Validation error" }, { status: 400 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to create contact" }, { status: 500 });
   }
 }
 

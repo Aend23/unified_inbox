@@ -9,7 +9,7 @@ export async function GET() {
     });
 
     return NextResponse.json({ user: session?.user || null });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error getting session:", error);
     return NextResponse.json({ user: null });
   }

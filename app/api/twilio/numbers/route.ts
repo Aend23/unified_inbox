@@ -32,10 +32,10 @@ export async function GET() {
       trialNumber: process.env.NEXT_PUBLIC_TWILIO_TRIAL_NUMBER || incomingNumbers[0]?.phoneNumber || null,
       whatsappEnabled,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching Twilio numbers:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch Twilio numbers" },
+      { error: error instanceof Error ? error.message : "Failed to fetch Twilio numbers" },
       { status: 500 }
     );
   }

@@ -42,16 +42,16 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, message, sid: result.sid });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error sending message:", error);
-    if (error.name === "ZodError") {
+    if (typeof error === "object" && error && (error as { name?: string }).name === "ZodError") {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error" },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { error: error.message || "Failed to send message" },
+      { error: error instanceof Error ? error.message : "Failed to send message" },
       { status: 500 }
     );
   }

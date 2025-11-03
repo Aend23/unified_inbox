@@ -9,7 +9,16 @@ export default function InboxPage() {
   const [filter, setFilter] = useState<"all" | "unread" | "scheduled">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: messages } = useQuery({
+  type MessageListItem = {
+    id: string;
+    body: string;
+    channel: string;
+    direction: "INBOUND" | "OUTBOUND";
+    createdAt: string | Date;
+    contact: { id: string; name?: string | null; phone?: string | null; email?: string | null };
+  };
+
+  const { data: messages } = useQuery<MessageListItem[]>({
     queryKey: ["messages"],
     queryFn: () => fetch("/api/messages").then((r) => r.json()),
   });
@@ -29,7 +38,7 @@ export default function InboxPage() {
     );
   };
 
-  const filteredMessages = messages?.filter((m: any) => {
+  const filteredMessages = messages?.filter((m) => {
     if (filter === "unread") {
       // For now, show all as we don't have read status yet
       return true;
@@ -71,7 +80,7 @@ export default function InboxPage() {
 
       <div className="space-y-3">
         {filteredMessages && filteredMessages.length > 0 ? (
-          filteredMessages.map((m: any) => (
+          filteredMessages.map((m) => (
             <div
               key={m.id}
               className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"

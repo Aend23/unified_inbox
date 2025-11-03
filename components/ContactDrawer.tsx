@@ -11,7 +11,30 @@ interface ContactDrawerProps {
 
 export function ContactDrawer({ contactId, onClose }: ContactDrawerProps) {
   const queryClient = useQueryClient();
-  const { data: contact } = useQuery({
+  type ContactResponse = {
+    id: string;
+    name?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    messages: Array<{
+      id: string;
+      body: string;
+      channel: string;
+      direction: "INBOUND" | "OUTBOUND";
+      createdAt: string | Date;
+      mediaUrl?: string | null;
+      sender?: { name?: string | null } | null;
+    }>;
+    notes: Array<{
+      id: string;
+      body: string;
+      createdAt: string | Date;
+      visibility: "PUBLIC" | "PRIVATE";
+      user?: { name?: string | null } | null;
+    }>;
+  };
+
+  const { data: contact } = useQuery<ContactResponse>({
     queryKey: ["contact", contactId],
     queryFn: () => fetch(`/api/contacts/${contactId}`).then((r) => r.json()),
     enabled: !!contactId,
@@ -21,7 +44,7 @@ export function ContactDrawer({ contactId, onClose }: ContactDrawerProps) {
   const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
 
   const addNoteMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: { contactId: string; body: string; visibility: "PUBLIC" | "PRIVATE" }) => {
       const response = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -13,7 +13,10 @@ type SendEmailPayload = {
 export async function sendEmail({ to, subject, body, html }: SendEmailPayload) {
   // Placeholder implementation
   // In production, integrate with Resend API, SendGrid, or Nodemailer
-  console.log(`[EMAIL] Would send to ${to}: ${subject}`);
+  console.log(`[EMAIL] Would send to ${to}: ${subject} :: ${body.length} chars`);
+  if (html) {
+    // noop reference to avoid unused warning
+  }
   
   // Example with Resend (uncomment when configured):
   /*

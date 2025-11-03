@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 export default function SettingsPage() {
-  const [twilioNumber, setTwilioNumber] = useState("");
 
   const twilioNumbers = useQuery({
     queryKey: ["twilio-numbers"],

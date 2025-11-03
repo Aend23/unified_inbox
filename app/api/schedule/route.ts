@@ -43,16 +43,16 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(scheduled, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error scheduling message:", error);
-    if (error.name === "ZodError") {
+    if (typeof error === "object" && error && (error as { name?: string }).name === "ZodError") {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error" },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { error: error.message || "Failed to schedule message" },
+      { error: error instanceof Error ? error.message : "Failed to schedule message" },
       { status: 500 }
     );
   }
@@ -66,10 +66,10 @@ export async function GET() {
       orderBy: { scheduledAt: "asc" },
     });
     return NextResponse.json(scheduled);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching scheduled messages:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch scheduled messages" },
+      { error: error instanceof Error ? error.message : "Failed to fetch scheduled messages" },
       { status: 500 }
     );
   }
