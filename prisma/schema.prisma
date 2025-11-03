@@ -36,7 +36,7 @@ model Account {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   provider     String   @default("credentials")
   providerId   String
-  accountId    String   // ✅ ADD THIS LINE
+  accountId    String  
   password     String?
   accessToken  String?
   refreshToken String?
@@ -53,11 +53,11 @@ model Session {
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token       String   @unique      // ✅ was `sessionToken`
-  sessionToken String?               // optional, keeps compatibility if needed
-  ipAddress   String?                // ✅ add this
-  userAgent   String?                // ✅ add this
-  expiresAt   DateTime               // ✅ was `expires`
+  token       String   @unique      
+  sessionToken String?              
+  ipAddress   String?               
+  userAgent   String?               
+  expiresAt   DateTime              
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
