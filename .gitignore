@@ -1,3 +1,44 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+.dist/
+build/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Logs & caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+.turbo/
+
+# Editors/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+
+# Misc
+.vercel/
+.pnp.*
+.pnpm-store/
+
+# Prisma
+.prisma/
+# (Keep migrations in repo)
+
+# TypeScript
+*.tsbuildinfo
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
