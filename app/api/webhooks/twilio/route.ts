@@ -13,11 +13,12 @@ export async function POST(req: NextRequest) {
   // Normalize phone (strip whatsapp: prefix)
   const normalizedFrom = from.replace(/^whatsapp:/, "");
 
-  const contact = await prisma.contact.upsert({
-    where: { phone: normalizedFrom },
-    update: {},
-    create: { phone: normalizedFrom, name: normalizedFrom },
-  });
+  let contact = await prisma.contact.findFirst({ where: { phone: normalizedFrom } });
+  if (!contact) {
+    contact = await prisma.contact.create({
+      data: { phone: normalizedFrom, name: normalizedFrom },
+    });
+  }
 
   const message = await prisma.message.create({
     data: {
