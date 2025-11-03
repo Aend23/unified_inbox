@@ -15,12 +15,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Find or create contact
-    const contact = await prisma.contact.upsert({
-      where: { phone: to },
-      update: {},
-      create: { phone: to, name: to },
-    });
+    // Find or create contact (phone is not unique in schema, so can't use upsert)
+    let contact = await prisma.contact.findFirst({ where: { phone: to } });
+    if (!contact) {
+      contact = await prisma.contact.create({ data: { phone: to, name: to } });
+    }
 
     // Send message via Twilio
     const result = await sendMessage({
