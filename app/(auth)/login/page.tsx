@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -50,8 +50,9 @@ export default function LoginPage() {
 
       router.push("/inbox");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to sign in";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -60,8 +61,9 @@ export default function LoginPage() {
   async function signInWithGoogle() {
     try {
       window.location.href = "/api/auth/sign-in/google";
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to sign in with Google";
+      setError(message);
     }
   }
 
@@ -148,7 +150,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 font-medium">
               Sign up
             </Link>

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { push } from "@/lib/pusher.server";
 import { noteCreateSchema } from "@/lib/validation";
+import { ZodError } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -46,16 +47,16 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(note, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating note:", error);
-    if (error.name === "ZodError") {
-      return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+    if (error instanceof ZodError) {
+      return NextResponse.json( 
+        { error: "Validation error", details: error.issues },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { error: error.message || "Failed to create note" },
+      { error: error instanceof Error ? error.message : "Failed to create note" },
       { status: 500 }
     );
   }

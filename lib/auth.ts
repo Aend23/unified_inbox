@@ -48,7 +48,7 @@ export async function getCurrentUser() {
     }
     
     return null;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error getting current user:", error);
     // Demo fallback
     if (process.env.NODE_ENV === "development") {
@@ -59,7 +59,7 @@ export async function getCurrentUser() {
         if (demoUser) {
           return { id: demoUser.id, email: demoUser.email, name: demoUser.name, role: demoUser.role };
         }
-      } catch (e) {
+      } catch {
         // Ignore
       }
     }
@@ -76,9 +76,9 @@ export async function requireRole(requiredRole: "ADMIN" | "EDITOR" | "VIEWER") {
     throw new Error("Unauthorized");
   }
 
-  const roleHierarchy = { VIEWER: 1, EDITOR: 2, ADMIN: 3 };
-  const userRole = (user as any).role || "VIEWER";
-  
+  const roleHierarchy = { VIEWER: 1, EDITOR: 2, ADMIN: 3 } as const;
+  const userRole = (user as { role?: keyof typeof roleHierarchy }).role ?? "VIEWER";
+
   if (roleHierarchy[userRole] < roleHierarchy[requiredRole]) {
     throw new Error("Insufficient permissions");
   }

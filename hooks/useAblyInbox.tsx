@@ -11,13 +11,13 @@ export function useAblyInbox() {
     const pusher = getPusherClient();
     const inboxChannel = pusher.subscribe("inbox");
 
-    const onMessage = (data: any) => {
+    const onMessage = (data: unknown) => {
       console.log("📩 New message in inbox:", data);
-      queryClient.invalidateQueries(["messages"]);
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
     };
-    const onNote = (data: any) => {
+    const onNote = (data: unknown) => {
       console.log("🗒️ New note added:", data);
-      queryClient.invalidateQueries(["contacts"]);
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
     };
 
     inboxChannel.bind("message-created", onMessage);

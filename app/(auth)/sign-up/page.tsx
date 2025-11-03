@@ -12,7 +12,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -48,8 +48,9 @@ export default function SignUpPage() {
 
       router.push("/inbox");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Failed to sign up");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to sign up";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -58,8 +59,9 @@ export default function SignUpPage() {
   async function signInWithGoogle() {
     try {
       window.location.href = "/api/auth/sign-in/google";
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to sign in with Google";
+      setError(message);
     }
   }
 
