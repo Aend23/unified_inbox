@@ -21,6 +21,6 @@ export async function sendMessage({ to, body, channel = "sms", mediaUrl }: SendM
     from,
     to: channel === "whatsapp" ? `whatsapp:${to}` : to,
     body,
-    ...(mediaUrl ? { mediaUrl } : {}),
+    ...(mediaUrl ? { mediaUrl: [mediaUrl] } : {}),
   });
 }
