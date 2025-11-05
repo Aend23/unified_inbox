@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { scheduleMessageSchema } from "@/lib/validation";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, requireRole } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +13,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Check if user has permission to schedule messages (EDITOR or ADMIN)
+    await requireRole("EDITOR");
 
     // Verify contact exists
     const contact = await prisma.contact.findUnique({

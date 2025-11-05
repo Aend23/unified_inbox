@@ -1,8 +1,8 @@
-// src/app/(auth)/login/page.tsx
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Mail, Lock, Loader2, Inbox } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,7 +17,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      console.log("Submitting login with email:", email);
       const response = await fetch("/api/auth/sign-in/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -25,7 +24,6 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        // Try to parse error body as JSON; fallback to text
         let message = "Failed to sign in";
         const ct = response.headers.get("content-type") || "";
         try {
@@ -40,7 +38,6 @@ export default function LoginPage() {
         throw new Error(message);
       }
 
-      // Success: some auth libs return empty body or redirects
       try {
         const ct = response.headers.get("content-type") || "";
         if (ct.includes("application/json")) {
@@ -68,63 +65,116 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white border rounded-lg shadow-sm">
-        <h1 className="text-2xl font-semibold mb-6 text-center">Sign in to Unified Inbox</h1>
-        
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
-            {error}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 ">
+      <div className="w-full max-w-md">
+        {/* Logo & Header */}
+        <div className="text-center mb-8 animate-fadeIn">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4 shadow-lg">
+            <Inbox className="w-8 h-8 text-white" />
           </div>
-        )}
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-gray-600">Sign in to your Unified Inbox</p>
+        </div>
 
-        <form onSubmit={submit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full border rounded px-3 py-2 text-sm"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full border rounded px-3 py-2 text-sm"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-
-        <div className="mt-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 animate-fadeIn">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg animate-fadeIn" data-testid="login-error">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-700 font-medium">{error}</p>
+                </div>
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          )}
+
+          <form onSubmit={submit} className="space-y-5">
+            {/* Email Input */}
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
+                Email Address
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm bg-gray-50 focus:bg-white"
+                  required
+                  data-testid="login-email-input"
+                />
+              </div>
+            </div>
+            
+            {/* Password Input */}
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+                Password
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm bg-gray-50 focus:bg-white"
+                  required
+                  data-testid="login-password-input"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              data-testid="login-submit-button"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                  Signing in...
+                </span>
+              ) : (
+                "Sign in"
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
+              </div>
             </div>
           </div>
 
+          {/* Google Sign In */}
           <button
             onClick={signInWithGoogle}
-            className="mt-4 w-full border rounded px-4 py-2 text-sm hover:bg-gray-50 flex items-center justify-center gap-2"
+            className="mt-6 w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all flex items-center justify-center gap-3 group"
+            data-testid="google-signin-button"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -144,15 +194,16 @@ export default function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Sign in with Google
+            <span className="text-gray-700">Sign in with Google</span>
           </button>
         </div>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-gray-600 animate-fadeIn">
           <p>
-            Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 font-medium">
-              Sign up
+            Don't have an account?{" "}
+            <Link href="/sign-up" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors">
+              Create one now
             </Link>
           </p>
         </div>

@@ -21,7 +21,13 @@ export async function GET() {
       take: 100, // Limit for performance
     });
 
-    return NextResponse.json(messages);
+    // Add isRead flag for current user
+    const messagesWithReadStatus = messages.map((msg) => ({
+      ...msg,
+      isRead: msg.readBy.includes(user.id),
+    }));
+
+    return NextResponse.json(messagesWithReadStatus);
   } catch (error: unknown) {
     console.error("Error fetching messages:", error);
     return NextResponse.json(

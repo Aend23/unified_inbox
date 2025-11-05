@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendMessage } from "@/lib/integrations/twilio";
 import { prisma } from "@/lib/prisma";
 import { sendMessageSchema } from "@/lib/validation";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, requireRole } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +14,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Check if user has permission to send messages (EDITOR or ADMIN)
+    await requireRole("EDITOR");
 
     // Find or create contact (phone is not unique in schema, so can't use upsert)
     let contact = await prisma.contact.findFirst({ where: { phone: to } });

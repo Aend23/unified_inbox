@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { push } from "@/lib/pusher.server";
 import { noteCreateSchema } from "@/lib/validation";
 import { ZodError } from "zod";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, requireRole } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +12,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Check if user has permission to create notes (EDITOR or ADMIN)
+    await requireRole("EDITOR");
 
     const body = await req.json();
     const validated = noteCreateSchema.parse(body);

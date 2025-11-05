@@ -1,18 +1,24 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth-config";
-import { headers } from "next/headers";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ user: null });
+    }
 
-    return NextResponse.json({ user: session?.user || null });
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role || 'VIEWER',
+      },
+    });
   } catch (error: unknown) {
     console.error("Error getting session:", error);
     return NextResponse.json({ user: null });
   }
 }
-
-
