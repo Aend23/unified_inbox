@@ -6,7 +6,7 @@ A comprehensive Next.js application that aggregates messages from SMS (Twilio), 
 
 - **Unified Inbox**: Centralized view of all messages across channels, threaded by contact
 - **Multi-Channel Support**: SMS, WhatsApp (with optional Email, Twitter/X, Facebook Messenger)
-- **Real-Time Collaboration**: Live updates via Ably, team notes with visibility controls
+- **Real-Time Collaboration**: Live updates via Pusher, team notes with visibility controls
 - **Message Scheduling**: Schedule messages for future delivery
 - **Analytics Dashboard**: Track engagement metrics, response times, and channel performance
 - **Contact Management**: Unified contact profiles with full history and notes
@@ -55,8 +55,6 @@ TWILIO_AUTH_TOKEN=your_auth_token_here
 TWILIO_PHONE_NUMBER=+1234567890
 TWILIO_WHATSAPP_NUMBER=whatsapp:+1234567890
 
-# Ably (for real-time features)
-ABLY_API_KEY=your_ably_api_key_here
 
 # Better Auth
 BETTER_AUTH_SECRET=your_secret_key_here_min_32_characters
@@ -217,6 +215,8 @@ erDiagram
 | Twitter/X DMs | 5–15s | Free (API access tiered) | 90% | API quota limits; OAuth app required |
 | Facebook Messenger | 3–10s | Free | 92% | Page permissions + webhook verification required |
 
+In Frontend add these in dashbaoard sections.
+
 **Notes:**
 - SMS and WhatsApp are production-ready with Twilio integration
 - Email requires Resend API or IMAP (polling) setup
@@ -238,7 +238,7 @@ erDiagram
 
 7. **Scheduled Message Processing**: A separate scheduler script processes scheduled messages, allowing for horizontal scaling.
 
-8. **Why Pusher over Ably (for this prototype)**: Initially explored Ably for realtime, but switched to Pusher Channels due to quicker presence-channel onboarding and client event support with our current auth model. Ably is still a strong option; tradeoffs are noted below.
+8. **Why Pusher over Ably (for this prototype)**: Initially explored Ably for realtime, but switched to Pusher Channels due to quicker presence-channel onboarding and client event support with our current auth model.
 
 9. **Presence Cursors vs. Name Badges**: The planned rich cursor presence (e.g., Yjs caret overlays) had library compatibility issues in the current stack. For this milestone, we ship reliable presence via name badges (“Alice editing”) and conflict-free note syncing, and defer visual cursors.
 
