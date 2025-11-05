@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: unified_inbox
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http host.docker.internal:3000
+    environment:
+      NGROK_AUTHTOKEN: 34yJL7DiKyhOhNdO5buyZYuPyyt_4D7SPaN9gi2qP1fZVVLe8
+    ports:
+      - "4040:4040" # ngrok web UI

@@ -9,7 +9,7 @@ export function getPusherClient() {
   const key = process.env.NEXT_PUBLIC_PUSHER_KEY!;
   const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER!;
   if (!key || !cluster) throw new Error("Missing NEXT_PUBLIC_PUSHER_KEY/CLUSTER");
-  pusher = new Pusher(key, { cluster });
+  pusher = new Pusher(key, { cluster, channelAuthorization: { endpoint: "/api/pusher/auth", transport: "ajax" } });
   return pusher;
 }
 

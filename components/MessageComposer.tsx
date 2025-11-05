@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Send, Calendar, Loader2, MessageSquare } from "lucide-react";
 
 type Channel = "sms" | "whatsapp" | "email";
 
@@ -92,64 +93,127 @@ export function MessageComposer({ contactId, contactPhone, contactEmail, onSent 
     availableChannels.push("sms", "whatsapp", "email");
   }
 
+  const getChannelColor = (ch: Channel) => {
+    const colors = {
+      sms: "bg-blue-100 text-blue-700 border-blue-200",
+      whatsapp: "bg-green-100 text-green-700 border-green-200",
+      email: "bg-purple-100 text-purple-700 border-purple-200",
+    };
+    return colors[ch];
+  };
+
+  const isPending = sendMutation.isPending || scheduleMutation.isPending;
+  const error = sendMutation.error || scheduleMutation.error;
+
   return (
-    <form onSubmit={handleSubmit} className="border rounded-lg p-4 space-y-3">
-      <div className="flex gap-2">
-        <select
-          value={channel}
-          onChange={(e) => setChannel(e.target.value as Channel)}
-          className="border rounded px-3 py-2 text-sm"
-        >
-          {availableChannels.map((ch) => (
-            <option key={ch} value={ch}>
-              {ch.toUpperCase()}
-            </option>
-          ))}
-        </select>
-        {!contactId && (
-          <input
-            type="text"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            placeholder={channel === "email" ? "email@example.com" : "+1234567890"}
-            className="flex-1 border rounded px-3 py-2 text-sm"
-            required
-          />
-        )}
+    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border-2 border-gray-200 p-6 shadow-lg" data-testid="message-composer">
+      <div className="flex items-center gap-2 mb-4">
+        <MessageSquare className="w-5 h-5 text-indigo-600" />
+        <h3 className="font-semibold text-gray-900">Compose Message</h3>
       </div>
 
-      <textarea
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder="Type your message..."
-        className="w-full border rounded px-3 py-2 text-sm min-h-[100px]"
-        required
-      />
-
-      <div className="flex items-center gap-2">
-        <input
-          type="datetime-local"
-          value={scheduledAt}
-          onChange={(e) => setScheduledAt(e.target.value)}
-          placeholder="Schedule (optional)"
-          className="border rounded px-3 py-2 text-sm"
-          min={new Date().toISOString().slice(0, 16)}
-        />
-        <button
-          type="submit"
-          disabled={sendMutation.isPending || scheduleMutation.isPending}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-        >
-          {scheduledAt && new Date(scheduledAt) > new Date() ? "Schedule" : "Send"}
-        </button>
-      </div>
-
-      {(sendMutation.error || scheduleMutation.error) && (
-        <div className="text-red-500 text-sm">
-          {sendMutation.error?.message || scheduleMutation.error?.message}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Channel & Recipient */}
+        <div className="flex gap-3">
+          <div className="relative">
+            <select
+              value={channel}
+              onChange={(e) => setChannel(e.target.value as Channel)}
+              className={`px-4 py-2.5 rounded-xl font-medium text-sm border-2 transition-all cursor-pointer appearance-none pr-10 ${getChannelColor(channel)}`}
+              data-testid="channel-select"
+            >
+              {availableChannels.map((ch) => (
+                <option key={ch} value={ch}>
+                  {ch.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          {!contactId && (
+            <input
+              type="text"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              placeholder={channel === "email" ? "email@example.com" : "+1234567890"}
+              className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm bg-white"
+              required
+              data-testid="recipient-input"
+            />
+          )}
         </div>
-      )}
-    </form>
+
+        {/* Message Body */}
+        <div className="relative">
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Type your message here..."
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm min-h-[120px] resize-none bg-white"
+            required
+            data-testid="message-body-input"
+          />
+          <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+            {body.length} characters
+          </div>
+        </div>
+
+        {/* Schedule & Send */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Calendar className="w-4 h-4 text-gray-400" />
+            </div>
+            <input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+              placeholder="Schedule (optional)"
+              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm bg-white"
+              min={new Date().toISOString().slice(0, 16)}
+              data-testid="schedule-input"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending || !body.trim() || !to.trim()}
+            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            data-testid="send-message-button"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Sending...</span>
+              </>
+            ) : (
+              <>
+                {scheduledAt && new Date(scheduledAt) > new Date() ? (
+                  <>
+                    <Calendar className="w-4 h-4" />
+                    <span>Schedule</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Send</span>
+                  </>
+                )}
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded-lg text-sm text-red-700 animate-fadeIn" data-testid="composer-error">
+            <p className="font-medium">{error.message}</p>
+          </div>
+        )}
+      </form>
+    </div>
   );
 }
-

@@ -3,25 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "docker-compose up -d && concurrently \"next dev\" \"ts-node -P tsconfig.scripts.json scripts/scheduler.ts\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "scheduler": "ts-node scripts/scheduler.ts"
+    "scheduler": "ts-node -P tsconfig.scripts.json scripts/scheduler.ts"
   },
   "dependencies": {
+    "concurrently": "^9.1.2",
     "@prisma/client": "^6.18.0",
     "@tanstack/react-query": "^5.90.6",
+    "@tiptap/extension-collaboration": "^3.10.1",
+    "@tiptap/react": "^3.10.1",
+    "@tiptap/starter-kit": "^3.10.1",
     "ably": "^2.14.0",
-    "pusher": "^5.2.0",
-    "pusher-js": "^8.4.0",
     "better-auth": "^1.3.34",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.552.0",
     "next": "16.0.1",
     "node-cron": "^4.2.1",
     "prisma": "^6.18.0",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0", 
+    "react-dom": "19.2.0",
+    "recharts": "^3.3.0",
     "twilio": "^5.10.4",
+    "y-prosemirror": "^1.3.7",
+    "y-protocols": "^1.0.6",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.27",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -32,7 +43,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
   }
 }
