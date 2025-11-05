@@ -28,7 +28,7 @@ A comprehensive Next.js application that aggregates messages from SMS (Twilio), 
 - Node.js 18+ and npm
 - PostgreSQL database (local or cloud like Supabase)
 - Twilio account with a trial number (for SMS/WhatsApp)
-- Ably account (for real-time features)
+- Pusher Channels app (for real-time features)
 - Google OAuth credentials (optional, for Google sign-in)
 
 ## 🚀 Quick Start
@@ -209,18 +209,18 @@ erDiagram
 
 ### Integration Comparison
 
-| Channel | Latency | Cost/Msg | Reliability | Status |
-|---------|---------|----------|-------------|--------|
-| SMS (Twilio) | < 5s | ~$0.0075 | 99.9% | ✅ Active |
-| WhatsApp (Twilio) | < 10s | ~$0.005 | 99.5% | ✅ Active |
-| Email | < 30s | ~$0.0001 | 95% | ⚪ Optional |
-| Twitter/X | ~5-15s | Free | 90% | ⚪ Optional |
-| Facebook Messenger | ~3-10s | Free | 92% | ⚪ Optional |
+| Channel | Typical Latency | Approx. Cost/Msg (US) | Reliability | Notes |
+|---------|------------------|------------------------|------------|-------|
+| SMS (Twilio) | 1–5s | ~$0.0075 outbound | 99.9% | Fastest path to phones; carrier throttling may apply |
+| WhatsApp (Twilio) | 1–10s | ~$0.005 outbound | 99.5% | Template pre-approval for business-initiated messages |
+| Email (Resend) | 5–30s | ~$0.0001 | 95% | Deliverability depends on domain reputation |
+| Twitter/X DMs | 5–15s | Free (API access tiered) | 90% | API quota limits; OAuth app required |
+| Facebook Messenger | 3–10s | Free | 92% | Page permissions + webhook verification required |
 
 **Notes:**
 - SMS and WhatsApp are production-ready with Twilio integration
-- Email requires Resend API or IMAP setup
-- Social media integrations require OAuth app setup
+- Email requires Resend API or IMAP (polling) setup
+- Social media integrations require OAuth app setup and webhooks
 
 ### Key Architectural Decisions
 
@@ -228,15 +228,23 @@ erDiagram
 
 2. **Contact-Centric Design**: Messages are grouped by contact, making it easy to view full conversation history across channels.
 
-3. **Real-Time Updates**: Ably is used for WebSocket connections, allowing live updates when new messages arrive or notes are added.
+3. **Real-Time Updates**: Pusher Channels is used for WebSocket connections (presence + client events) enabling live updates for inbox, mentions, and collaborative notes.
 
 4. **Role-Based Access**: Users have roles (VIEWER, EDITOR, ADMIN) that control access to features. Private notes are only visible to their creators.
 
 5. **Factory Pattern for Integrations**: The integration factory (`/lib/integrations/factory.ts`) allows easy addition of new channels without modifying existing code.
 
-6. **Optimistic Updates**: React Query handles optimistic UI updates for better UX.
+6. **Optimistic Updates**: React Query handles optimistic UI updates for richer UX.
 
 7. **Scheduled Message Processing**: A separate scheduler script processes scheduled messages, allowing for horizontal scaling.
+
+8. **Why Pusher over Ably (for this prototype)**: Initially explored Ably for realtime, but switched to Pusher Channels due to quicker presence-channel onboarding and client event support with our current auth model. Ably is still a strong option; tradeoffs are noted below.
+
+9. **Presence Cursors vs. Name Badges**: The planned rich cursor presence (e.g., Yjs caret overlays) had library compatibility issues in the current stack. For this milestone, we ship reliable presence via name badges (“Alice editing”) and conflict-free note syncing, and defer visual cursors.
+
+10. **Webhook-Driven Ingestion**: Inbound events (Twilio SMS/WhatsApp) arrive via signed webhooks and are normalized to the unified message model for consistent rendering and analytics.
+
+11. **Configurable Channel Factory**: `/lib/integrations.ts` exposes `createSender(channel)` to simplify adding new channels and keep send logic isolated.
 
 ## 🔒 Security
 
@@ -245,6 +253,19 @@ erDiagram
 - Private notes encryption (via Prisma middleware)
 - Webhook signature verification (for Twilio)
 - OAuth 2.0 for social integrations
+
+## ✍️ Mentions and Collaborative Notes
+
+- **@Mentions**: Type `@` in a note to mention teammates. A dropdown filters by name/email. Mentions are rendered inline with a subtle highlight.
+- **Real-Time Editing**: Collaborative editing is backed by Pusher presence and client events to sync text between editors with optimistic updates.
+- **Presence Indicator**: When someone else is editing the same note, you’ll see a compact badge like “Alex editing”. This avoids race conditions and works across browsers.
+- **Cursor Presence (Deferred)**: Rich caret/label cursors via Yjs awareness were attempted, but current editor+provider libraries had compatibility issues. We prioritized stability; cursors can be added in a subsequent iteration once the provider is swapped or shimmed.
+
+### Tradeoffs and Future Work
+- Swap in a Yjs provider that fully supports awareness cursors with TipTap not able to add it due to package not compatibility.
+- Consider server-side presence reconciliation for accuracy across reconnects.
+- Add email inbound via webhook/IMAP and map threading to the unified model.
+- Add Slack/Zapier notifications for key inbox and note events.
 
 ## 📝 API Endpoints
 
@@ -284,45 +305,4 @@ npm run lint
 # Type check
 npx tsc --noEmit
 ```
-
-## 📦 Deployment
-
-### Vercel (Recommended)
-
-1. Push code to GitHub
-2. Import project to Vercel
-3. Add environment variables
-4. Deploy
-
-### Docker
-
-```bash
-docker build -t unified-inbox .
-docker run -p 3000:3000 --env-file .env unified-inbox
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-MIT
-
-## 🙏 Acknowledgments
-
-- Twilio for SMS/WhatsApp APIs
-- Ably for real-time infrastructure
-- Better Auth for authentication
-- Next.js team for the excellent framework
-
-## 📞 Support
-
-For issues or questions, please open an issue on GitHub.
-
 ---
-
-**Built with ❤️ for unified customer communication**

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getPusherClient } from "@/lib/pusher.client";
 
-export function useAblyInbox() {
+export function usePusherInbox() {
   const queryClient = useQueryClient();
 
   useEffect(() => {

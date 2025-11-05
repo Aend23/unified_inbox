@@ -1,9 +1,9 @@
 import Pusher from "pusher";
 
-const appId = '2072577';
-const key = 'e6b9ad6a1f0859c1514a';
-const secret = '2b510e37c067a981e169';
-const cluster = 'ap2';
+const appId = process.env.PUSHER_APP_ID;
+const key = process.env.PUSHER_KEY;
+const secret = process.env.PUSHER_SECRET;
+const cluster = process.env.PUSHER_CLUSTER;
 
 if (!appId || !key || !secret || !cluster) {
   throw new Error("Missing Pusher configuration. Set PUSHER_APP_ID, PUSHER_KEY, PUSHER_SECRET, PUSHER_CLUSTER.");

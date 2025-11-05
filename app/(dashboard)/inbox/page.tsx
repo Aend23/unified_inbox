@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAblyInbox } from "@/hooks/useAblyInbox";
+import { usePusherInbox } from "@/hooks/usePusherInbox";
 import { ContactDrawerEnhanced } from "@/components/ContactDrawerEnhanced";
 import { Search, Filter, MessageCircle, Clock, ArrowUpRight, ArrowDownLeft, Inbox as InboxIcon } from "lucide-react";
 
@@ -39,7 +39,7 @@ export default function InboxPage() {
     queryFn: () => fetch("/api/schedule").then((r) => r.json()),
   });
 
-  useAblyInbox();
+  usePusherInbox();
 
   const getChannelBadge = (channel: string) => {
     const configs: Record<string, { bg: string; text: string; label: string }> = {

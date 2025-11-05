@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:ankush@23@localhost:5432/unified_inbox?schema=public"
+  url      = "env(DATABASE_URL)"
 }
 
 model User {
